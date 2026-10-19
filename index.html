@@ -5,152 +5,180 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MarkIt — Калькулятор оценок</title>
 <style>
-  :root {
-    --bg: #f5f6f8; --card: #fff; --text: #1f2430; --muted: #6b7280; --line: #e5e7eb;
-    --accent: #3b63f0; --accent-hover: #2f50c8;
-    --good: #1e8e4e; --good-bg: #e3f6ea; --warn: #a96b00; --warn-bg: #fff3cc; --bad: #c62d2d; --bad-bg: #fde4e4;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #14161b; --card: #1d2027; --text: #e8eaf0; --muted: #98a0ae; --line: #2c313b;
-      --accent: #5b7fff; --accent-hover: #7a97ff;
-      --good: #5fd68c; --good-bg: #163524; --warn: #f2c14e; --warn-bg: #3a2f10; --bad: #ff7b7b; --bad-bg: #3d1b1b;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #14161b; --card: #1d2027; --text: #e8eaf0; --muted: #98a0ae; --line: #2c313b;
-    --accent: #5b7fff; --accent-hover: #7a97ff;
-    --good: #5fd68c; --good-bg: #163524; --warn: #f2c14e; --warn-bg: #3a2f10; --bad: #ff7b7b; --bad-bg: #3d1b1b;
-  }
+:root{
+  --bgs:#eef0f6;--text:#14161c;--muted:#5d6472;--line:rgba(20,22,28,.1);
+  --glass:rgba(255,255,255,.52);--glass2:rgba(255,255,255,.6);--edge:rgba(255,255,255,.75);--shadow:rgba(40,50,90,.16);--field:rgba(255,255,255,.55);
+  --accent:#0a84ff;--accent2:#5e5ce6;--on:#fff;
+  --good:#1a8a4a;--good-bg:rgba(52,199,89,.2);--warn:#a65f00;--warn-bg:rgba(255,204,0,.28);--bad:#c9302c;--bad-bg:rgba(255,69,58,.18);
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bgs:#0b0c10;--text:#f2f3f7;--muted:#9aa1b0;--line:rgba(255,255,255,.12);
+  --glass:rgba(40,42,52,.45);--glass2:rgba(60,63,76,.5);--edge:rgba(255,255,255,.18);--shadow:rgba(0,0,0,.5);--field:rgba(255,255,255,.07);
+  --good:#5fd68c;--good-bg:rgba(52,199,89,.22);--warn:#f2c14e;--warn-bg:rgba(255,204,0,.2);--bad:#ff8480;--bad-bg:rgba(255,69,58,.24)}}
+:root[data-theme="dark"]{
+  --bgs:#0b0c10;--text:#f2f3f7;--muted:#9aa1b0;--line:rgba(255,255,255,.12);
+  --glass:rgba(40,42,52,.45);--glass2:rgba(60,63,76,.5);--edge:rgba(255,255,255,.18);--shadow:rgba(0,0,0,.5);--field:rgba(255,255,255,.07);
+  --good:#5fd68c;--good-bg:rgba(52,199,89,.22);--warn:#f2c14e;--warn-bg:rgba(255,204,0,.2);--bad:#ff8480;--bad-bg:rgba(255,69,58,.24)}
+:root[data-accent="purple"]{--accent:#af52de;--accent2:#5e5ce6}
+:root[data-accent="pink"]{--accent:#ff375f;--accent2:#ff9f0a}
+:root[data-accent="orange"]{--accent:#ff9500;--accent2:#ff453a}
+:root[data-accent="green"]{--accent:#30b94f;--accent2:#00c7be}
+:root[data-accent="teal"]{--accent:#00b5c8;--accent2:#0a84ff}
+:root[data-accent="mono"]{--accent:var(--text);--accent2:#8e8e93;--on:var(--bgs)}
 
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { font-size: 1.5rem; margin: 0 0 16px; display: flex; align-items: center; justify-content: space-between; }
-  h2 { font-size: 1.05rem; margin: 0; }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bgs);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",Roboto,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;transition:background .5s}
+.bg i:nth-child(1){width:60vmax;height:60vmax;left:-20vmax;top:-18vmax;background:var(--accent)}
+.bg i:nth-child(2){width:50vmax;height:50vmax;right:-18vmax;top:25vh;background:var(--accent2)}
+.bg i:nth-child(3){width:42vmax;height:42vmax;left:10vw;bottom:-22vmax;background:var(--accent);opacity:.35}
+.wrap{max-width:640px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;margin:0 0 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1 small{display:block;font-size:.85rem;font-weight:400;color:var(--muted);letter-spacing:0}
+h2{font-size:1.05rem;margin:0;font-weight:650}
 
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.glass,.card,.subject-btn,.menu{
+  background:var(--glass);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid var(--edge);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.05),0 10px 30px -8px var(--shadow)}
+.card{border-radius:28px;padding:18px;margin-bottom:16px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
 
-  /* Вкладки предметов */
-  .subjects-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .subjects-bar::-webkit-scrollbar { display: none; }
-  .subject-btn {
-    background: var(--card); border: 1px solid var(--line); color: var(--muted);
-    padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.95rem;
-    cursor: pointer; white-space: nowrap; transition: all 0.2s;
-  }
-  .subject-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .subject-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .subject-btn.add { background: transparent; border-style: dashed; color: var(--muted); }
-  .subject-btn.add:hover { background: var(--bg); border-color: var(--accent); color: var(--accent); }
+.theme-wrap{position:relative}
+.theme-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--edge);background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);font-size:1.2rem;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 18px -6px var(--shadow);color:var(--text)}
+.menu{position:absolute;right:0;top:54px;z-index:20;width:264px;border-radius:24px;padding:16px;background:var(--glass2)}
+.menu h3{margin:0 0 8px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.seg{display:flex;padding:3px;border-radius:14px;background:var(--field);border:1px solid var(--line);margin-bottom:16px}
+.seg button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:.88rem;font-weight:600;padding:7px 0;border-radius:11px;cursor:pointer;transition:.2s}
+.seg button.on{background:var(--accent);color:var(--on);box-shadow:0 2px 8px -2px var(--shadow)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 3px 8px -2px var(--shadow);padding:0;transition:transform .15s}
+.sw:hover{transform:scale(1.1)}
+.sw.on{outline:2px solid var(--text);outline-offset:2px}
 
-  /* Список предметов на главной */
-  .subject-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .subject-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
-    cursor: pointer; transition: all 0.2s; text-align: left;
-  }
-  .subject-item:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-  .subject-item-name { font-weight: 600; font-size: 1rem; }
-  .subject-item-grade { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+.subjects-bar{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.subjects-bar::-webkit-scrollbar{display:none}
+.subject-btn{color:var(--text);padding:9px 18px;border-radius:999px;font:inherit;font-weight:600;font-size:.92rem;cursor:pointer;white-space:nowrap;transition:.2s}
+.subject-btn.active{background:var(--accent);border-color:transparent;color:var(--on)}
+.subject-btn.add{border-style:dashed;color:var(--muted)}
+.subject-btn:hover{filter:brightness(1.06)}
 
-  /* Форма */
-  form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .full { grid-column: 1 / -1; }
-  label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
-  
-  input { width: 100%; padding: 10px 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
-  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.subject-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.subject-item{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--field);border:1px solid var(--line);border-radius:20px;cursor:pointer;transition:.2s;text-align:left;font:inherit;color:var(--text)}
+.subject-item:hover{border-color:var(--accent);transform:translateY(-1px)}
+.subject-item-name{font-weight:600}
+.subject-item-grade{font-weight:700;display:flex;align-items:center;gap:8px}
 
-  /* Кнопки быстрого ввода */
-  .quick-grades { display: flex; gap: 8px; margin-bottom: 4px; }
-  .q-btn {
-    flex: 1; background: var(--bg); border: 1px solid var(--line); color: var(--text);
-    padding: 10px 0; border-radius: 8px; font-size: 1.15rem; font-weight: 700; cursor: pointer;
-    transition: all 0.1s;
-  }
-  .q-btn:hover { border-color: var(--accent); }
-  .q-btn[data-g="5"] { color: var(--good); }
-  .q-btn[data-g="5"]:hover { background: var(--good-bg); border-color: var(--good); }
-  .q-btn[data-g="4"] { color: var(--warn); }
-  .q-btn[data-g="4"]:hover { background: var(--warn-bg); border-color: var(--warn); }
-  .q-btn[data-g="3"] { color: var(--bad); }
-  .q-btn[data-g="3"]:hover { background: var(--bad-bg); border-color: var(--bad); }
-  .q-btn[data-g="2"] { color: var(--bad); }
-  .q-btn[data-g="2"]:hover { background: var(--bad-bg); border-color: var(--bad); }
+form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px}
+input{width:100%;padding:11px 14px;font:inherit;color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:14px}
+input::placeholder{color:var(--muted)}
+input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.quick-grades{display:flex;gap:8px}
+.q-btn{flex:1;background:var(--field);border:1px solid var(--line);color:var(--text);padding:12px 0;border-radius:16px;font:inherit;font-size:1.2rem;font-weight:700;cursor:pointer;transition:.15s}
+.q-btn[data-g="5"]{color:var(--good)}.q-btn[data-g="4"]{color:var(--warn)}.q-btn[data-g="3"],.q-btn[data-g="2"]{color:var(--bad)}
+.q-btn:hover{transform:translateY(-1px)}
+.q-btn.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);background:var(--glass2)}
 
-  .btn { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 11px 16px; cursor: pointer; }
-  .btn.primary { background: var(--accent); color: #fff; }
-  .btn.primary:hover { background: var(--accent-hover); }
-  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; font-weight: 500; }
-  .btn.ghost:hover, .btn.ghost.armed { color: var(--bad); border-color: var(--bad); }
-  
-  .error { color: var(--bad); font-size: .9rem; margin: 10px 0 0; min-height: 1.4em; }
-  .muted { color: var(--muted); margin: 8px 0 0; }
+.btn{font:inherit;font-weight:600;border:0;border-radius:999px;padding:12px 20px;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 20px -6px var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--field);color:var(--muted);border:1px solid var(--line);padding:6px 14px;font-weight:500;font-size:.88rem}
+.btn.ghost:hover,.btn.ghost.armed{color:var(--bad);border-color:var(--bad)}
+.error{color:var(--bad);font-size:.9rem;margin:10px 0 0;min-height:1.4em}
+.muted{color:var(--muted);margin:8px 0 0}
 
-  /* Таблица */
-  .scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-size: .8rem; font-weight: 500; color: var(--muted); padding: 6px 8px; }
-  td { padding: 10px 8px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
-  th.center, td.center { text-align: center; width: 1%; white-space: nowrap; }
-  .icon-btn { font: inherit; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 4px 8px; border-radius: 8px; }
-  .icon-btn:hover { color: var(--bad); background: var(--bad-bg); }
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.8rem;font-weight:500;color:var(--muted);padding:6px 8px}
+td{padding:10px 8px;border-top:1px solid var(--line);overflow-wrap:anywhere}
+th.center,td.center{text-align:center;width:1%;white-space:nowrap}
+.icon-btn{font:inherit;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 10px;border-radius:999px}
+.icon-btn:hover{color:var(--bad);background:var(--bad-bg)}
 
-  /* Таблетки */
-  .pill { display: inline-block; min-width: 2.2em; text-align: center; padding: 2px 10px; border-radius: 8px; font-weight: 700; }
-  .pill.big { font-size: 1.25rem; padding: 2px 14px; }
-  .pill.good { color: var(--good); background: var(--good-bg); }
-  .pill.warn { color: var(--warn); background: var(--warn-bg); }
-  .pill.bad  { color: var(--bad);  background: var(--bad-bg); }
-  .pill.neutral { color: var(--text); background: var(--line); }
-
-  .stat { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
-  .stat:first-of-type { border-top: 0; }
-  .stat-value { font-weight: 700; font-size: 1.15rem; text-align: right; }
-  .note { color: var(--muted); font-size: .8rem; text-align: center; }
-
-  /* Прогноз */
-  .forecast { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-  .forecast-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: .95rem; }
-  .forecast-row strong { font-size: 1.1rem; }
+.pill{display:inline-block;min-width:2.2em;text-align:center;padding:2px 11px;border-radius:999px;font-weight:700}
+.pill.big{font-size:1.25rem;padding:2px 16px}
+.pill.good{color:var(--good);background:var(--good-bg)}
+.pill.warn{color:var(--warn);background:var(--warn-bg)}
+.pill.bad{color:var(--bad);background:var(--bad-bg)}
+.stat{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.stat:first-of-type{border-top:0}
+.note{color:var(--muted);font-size:.8rem;text-align:center}
+.forecast{display:flex;flex-direction:column;gap:8px}
+.forecast-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--field);border:1px solid var(--line);border-radius:16px;font-size:.95rem}
+.forecast-row strong{font-size:1.1rem}
+.seg.terms{background:var(--glass);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border-color:var(--edge);padding:4px;margin-bottom:16px}
+.seg.terms button{padding:9px 0}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-radius:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 10px 24px -8px var(--accent)}
+.hero small{display:block;opacity:.85;font-size:.82rem}
+.hero b{font-size:2rem;letter-spacing:-.02em;line-height:1.1}
+.hero .pill{background:rgba(255,255,255,.25);color:inherit;font-size:1.4rem}
+.links{display:flex;justify-content:center;gap:20px;margin:0 0 16px}
+.link{background:none;border:0;font:inherit;font-size:.85rem;color:var(--muted);cursor:pointer;padding:6px}
+.link:hover,.link.armed{color:var(--bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:14px;padding:10px 12px 10px 18px;border-radius:999px;background:var(--glass2);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid var(--edge);box-shadow:0 10px 30px -8px var(--shadow);font-size:.92rem;white-space:nowrap}
+.toast button{border:0;background:var(--accent);color:var(--on);font:inherit;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer}
+dialog{border:1px solid var(--edge);border-radius:26px;padding:20px;width:min(340px,90vw);color:var(--text);background:var(--glass2);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);box-shadow:0 20px 50px -10px var(--shadow)}
+dialog::backdrop{background:rgba(0,0,0,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+textarea{width:100%;height:70px;padding:10px 12px;font:.75rem/1.3 ui-monospace,monospace;color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:14px;resize:none}
+.row{display:flex;gap:8px;margin-top:8px}.row .btn{flex:1;padding:8px 0;font-size:.85rem}
+.menu{max-height:80vh;overflow-y:auto;font-size:1rem;font-weight:400;letter-spacing:0}
+.msg{font-size:.78rem;color:var(--muted);margin:6px 0 0;min-height:1em}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
 <main class="wrap">
-  <h1>MarkIt <span style="font-size:1rem; font-weight:400; color:var(--muted);">Калькулятор оценок</span></h1>
+  <h1><span>MarkIt<small>Калькулятор оценок</small></span>
+    <div class="theme-wrap">
+      <button type="button" class="theme-btn" id="themeBtn" aria-label="Настройки" aria-expanded="false">⚙️</button>
+      <div class="menu" id="menu" hidden>
+        <h3>Режим</h3>
+        <div class="seg" id="modeSeg">
+          <button type="button" data-mode="light">Светлая</button>
+          <button type="button" data-mode="dark">Тёмная</button>
+          <button type="button" data-mode="auto">Авто</button>
+        </div>
+        <h3>Акцентный цвет</h3>
+        <div class="swatches" id="swatches"></div>
+        <h3 style="margin-top:16px">Резервная копия</h3>
+        <textarea id="dataBox" aria-label="Данные" placeholder="Здесь появится текст копии. Чтобы восстановить, вставьте его сюда."></textarea>
+        <div class="row"><button type="button" class="btn ghost" id="exportBtn">Копия</button><button type="button" class="btn ghost" id="importBtn">Восстановить</button></div>
+        <p class="msg" id="dataMsg"></p>
+      </div>
+    </div>
+  </h1>
 
-  <!-- Панель предметов -->
-  <div class="subjects-bar" id="subjectsBar">
-    <!-- Вкладки генерируются через JS -->
+  <div class="subjects-bar" id="subjectsBar"></div>
+
+  <div class="seg terms" id="termSeg">
+    <button type="button" data-term="1">1 трим.</button>
+    <button type="button" data-term="2">2 трим.</button>
+    <button type="button" data-term="3">3 трим.</button>
+    <button type="button" data-term="0">Год</button>
   </div>
 
-  <!-- ГЛАВНЫЙ ЭКРАН (Мои оценки) -->
   <section id="dashboardView" class="card">
     <div class="card-head">
       <h2>Все предметы</h2>
-      <span class="muted" style="margin:0; font-size:0.85rem;">По возрастанию среднего балла</span>
+      <span class="muted" style="margin:0;font-size:.82rem">Сначала самые слабые</span>
     </div>
-    <div id="allSubjectsList" class="subject-list">
-      <!-- Список генерируется через JS -->
-    </div>
+    <div id="hero"></div>
+    <div id="allSubjectsList" class="subject-list"></div>
   </section>
 
-  <!-- ЭКРАН ПРЕДМЕТА (Форма, Результат, Прогноз, Таблица) -->
   <div id="subjectDetailView" hidden>
-    
-    <!-- Форма добавления оценки -->
     <section class="card">
       <form id="form" novalidate autocomplete="off">
         <div class="full">
-          <label>Выберите оценку (нажми на цифру)</label>
+          <label>Выберите оценку</label>
           <div class="quick-grades">
             <button type="button" class="q-btn" data-g="5">5</button>
             <button type="button" class="q-btn" data-g="4">4</button>
@@ -160,122 +188,169 @@
           <input id="grade" type="hidden" value="">
         </div>
         <div class="full">
-          <label for="subject">Название работы / комментарий (необязательно)</label>
+          <label for="subject">Название работы (необязательно)</label>
           <input id="subject" type="text" maxlength="60" placeholder="Например, Контрольная">
         </div>
         <div>
           <label for="weight">Вес (по умолчанию 1,0)</label>
           <input id="weight" type="text" inputmode="decimal" placeholder="1,0">
         </div>
-        <button type="submit" class="btn primary" style="align-self:end;">Добавить</button>
+        <button type="submit" class="btn primary" style="align-self:end">Добавить</button>
       </form>
       <p id="error" class="error" role="alert"></p>
     </section>
 
-    <!-- Результат -->
     <section class="card" id="resultCard" hidden>
       <div class="card-head">
         <h2>Результат</h2>
-        <span id="currentSubjectTitle" style="color:var(--accent); font-weight:600; font-size:0.9rem;"></span>
+        <span id="currentSubjectTitle" style="color:var(--accent);font-weight:600;font-size:.9rem"></span>
       </div>
       <p id="empty" class="muted">Пока нет оценок</p>
       <div id="stats" hidden>
-        <div class="stat">
-          <span>Средневзвешенный балл</span>
-          <span id="avg" class="pill big good">0,00</span>
-        </div>
-        <div class="stat">
-          <span>Текущая оценка</span>
-          <span id="current" class="pill big good">5</span>
-        </div>
+        <div class="stat"><span>Средневзвешенный балл</span><span id="avg" class="pill big good">0,00</span></div>
+        <div class="stat"><span>Текущая оценка</span><span id="current" class="pill big good">5</span></div>
       </div>
     </section>
 
-    <!-- Прогноз -->
     <section class="card" id="forecastCard" hidden>
       <h2>Прогноз</h2>
-      <p class="muted" style="margin-top:0; margin-bottom:12px; font-size:0.85rem;">Сколько пятёрок весом 1,0 нужно до следующей оценки</p>
+      <p class="muted" style="margin-top:0;margin-bottom:12px;font-size:.85rem">Сколько пятёрок весом 1,0 нужно до следующей оценки</p>
       <div class="forecast">
-        <div class="forecast-row">
-          <span>До оценки «5» (4.6+)</span>
-          <strong id="need5">0</strong>
-        </div>
-        <div class="forecast-row">
-          <span>До оценки «4» (3.6+)</span>
-          <strong id="need4">0</strong>
-        </div>
-        <div class="forecast-row">
-          <span>До оценки «3» (2.6+)</span>
-          <strong id="need3">0</strong>
-        </div>
+        <div class="forecast-row"><span>До оценки «5» (4,6+)</span><strong id="need5">0</strong></div>
+        <div class="forecast-row"><span>До оценки «4» (3,6+)</span><strong id="need4">0</strong></div>
+        <div class="forecast-row"><span>До оценки «3» (2,6+)</span><strong id="need3">0</strong></div>
       </div>
     </section>
 
-    <!-- Таблица оценок -->
     <section class="card" id="tableCard" hidden>
       <div class="card-head">
         <h2>Оценки</h2>
-        <button type="button" id="clear" class="btn ghost">Очистить предмет</button>
+        <button type="button" id="clear" class="btn ghost">Очистить список</button>
       </div>
       <div class="scroll">
         <table>
-          <thead>
-            <tr><th>Работа</th><th class="center">Оценка</th><th class="center">Вес</th><th class="center">Удалить</th></tr>
-          </thead>
+          <thead><tr><th>Работа</th><th class="center">Оценка</th><th class="center">Вес</th><th class="center">Удалить</th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
     </section>
-
   </div>
 
+  <p class="links" id="subjLinks" hidden><button type="button" class="link" id="renameBtn">Переименовать предмет</button><button type="button" class="link" id="delSubj">Удалить предмет</button></p>
   <p class="note">Данные сохраняются в вашем браузере автоматически.</p>
+  <div class="toast" id="toast" hidden><span id="toastText"></span><button type="button" id="undoBtn">Отменить</button></div>
+  <dialog id="nameDlg"><form id="nameForm" style="display:block"><label for="nameInput" id="nameLabel">Название предмета</label><input id="nameInput" maxlength="40" autocomplete="off"><div class="dlg-actions"><button type="button" class="btn ghost" id="nameCancel">Отмена</button><button type="submit" class="btn primary">Готово</button></div></form></dialog>
 </main>
 
 <script>
 (function () {
   'use strict';
 
+  // ---------- Темы ----------
+  const THEME_KEY = 'markit_theme_v1';
+  const ACCENTS = [
+    ['blue', '#0a84ff', 'Синий'], ['purple', '#af52de', 'Фиолетовый'], ['pink', '#ff375f', 'Розовый'],
+    ['orange', '#ff9500', 'Оранжевый'], ['green', '#30b94f', 'Зелёный'], ['teal', '#00b5c8', 'Бирюзовый'],
+    ['mono', 'linear-gradient(135deg,#fff 50%,#111 50%)', 'Чёрно-белый']
+  ];
+  let theme = { mode: 'auto', accent: 'blue' };
+  try {
+    const t = JSON.parse(localStorage.getItem(THEME_KEY));
+    if (t && t.mode && t.accent) theme = t;
+  } catch (e) {}
+
+  const root = document.documentElement;
+  const menu = document.getElementById('menu'), themeBtn = document.getElementById('themeBtn');
+  const swatchesEl = document.getElementById('swatches');
+
+  function applyTheme() {
+    if (theme.mode === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', theme.mode);
+    root.setAttribute('data-accent', theme.accent);
+    document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === theme.mode));
+    swatchesEl.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', b.dataset.accent === theme.accent));
+    try { localStorage.setItem(THEME_KEY, JSON.stringify(theme)); } catch (e) {}
+  }
+
+  ACCENTS.forEach(([id, color, name]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.dataset.accent = id;
+    b.style.background = color; b.title = name; b.setAttribute('aria-label', name);
+    b.onclick = () => { theme.accent = id; applyTheme(); };
+    swatchesEl.appendChild(b);
+  });
+  document.querySelectorAll('#modeSeg button').forEach(b => {
+    b.onclick = () => { theme.mode = b.dataset.mode; applyTheme(); };
+  });
+  themeBtn.onclick = e => {
+    e.stopPropagation();
+    menu.hidden = !menu.hidden;
+    themeBtn.setAttribute('aria-expanded', String(!menu.hidden));
+  };
+  menu.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => { menu.hidden = true; themeBtn.setAttribute('aria-expanded', 'false'); });
+  applyTheme();
+
   // ---------- Константы ----------
-  const TARGET_5 = 4.6;
-  const TARGET_4 = 3.6;
-  const TARGET_3 = 2.6;
-  const EPS = 1e-9;
+  const TARGET_5 = 4.6, TARGET_4 = 3.6, TARGET_3 = 2.6, EPS = 1e-9;
   const NUM_RE = /^(\d+\.?\d*|\.\d+)$/;
   const STORAGE_KEY = 'markit_data_v3';
 
   // ---------- Данные ----------
-  let state = {
-    currentSubject: null, // null означает, что мы на главном экране "Мои оценки"
-    subjects: {},
-    nextId: 1
-  };
-
+  let state = { currentSubject: null, subjects: {}, nextId: 1, term: 1 };
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed && parsed.subjects) {
-        state = parsed;
-        // При загрузке всегда открываем главный экран
-        state.currentSubject = null; 
-      }
+      if (parsed && parsed.subjects) { state = parsed; state.currentSubject = null; }
     }
-  } catch (e) {
-    console.warn('Не удалось загрузить данные', e);
-  }
+  } catch (e) { console.warn('Не удалось загрузить данные', e); }
 
   if (Object.keys(state.subjects).length === 0) {
     state.subjects['Математика'] = [];
     state.subjects['Русский язык'] = [];
   }
 
-  function saveData() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.warn('Не удалось сохранить данные', e);
+  function defaultTerm() {
+    const m = new Date().getMonth() + 1;
+    return m >= 9 && m <= 11 ? 1 : (m === 12 || m <= 2) ? 2 : 3;
+  }
+  function fixTerms() {
+    if (![0, 1, 2, 3].includes(state.term)) state.term = defaultTerm();
+    Object.values(state.subjects).forEach(list => list.forEach(it => { if (!it.term) it.term = defaultTerm(); }));
+  }
+  fixTerms();
+  const inTerm = subj => (state.subjects[subj] || []).filter(it => state.term === 0 || it.term === state.term);
+
+  function renderHero() {
+    const hero = document.getElementById('hero');
+    hero.textContent = '';
+    const rows = Object.keys(state.subjects).map(s => ({ s, ...getSubjectStats(s) })).filter(r => r.hasData);
+    if (!rows.length) return;
+    const avg = rows.reduce((a, r) => a + r.avg, 0) / rows.length;
+    const box = document.createElement('div');
+    box.className = 'hero';
+    const left = document.createElement('div');
+    const cap = document.createElement('small');
+    cap.textContent = 'Средний балл ' + (state.term === 0 ? 'за год' : 'за ' + state.term + ' триместр');
+    const num = document.createElement('b');
+    num.textContent = fmtAvg(avg);
+    left.append(cap, num);
+    box.append(left, pill(gradeByAverage(avg), ''));
+    hero.appendChild(box);
+    if (rows.length > 1) {
+      const weak = rows.reduce((m, r) => (r.avg < m.avg ? r : m));
+      if (weak.avg < TARGET_5) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'Подтянуть: ' + weak.s + ' (' + fmtAvg(weak.avg) + ')';
+        hero.appendChild(p);
+      }
     }
+  }
+
+  function saveData() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.warn('Не удалось сохранить данные', e); }
   }
 
   // ---------- Элементы ----------
@@ -288,12 +363,10 @@
   const need5El = $('need5'), need4El = $('need4'), need3El = $('need3');
   const resultCard = $('resultCard');
   const subjectsBar = $('subjectsBar'), currentSubjectTitle = $('currentSubjectTitle');
-  
-  const dashboardView = $('dashboardView');
-  const subjectDetailView = $('subjectDetailView');
+  const dashboardView = $('dashboardView'), subjectDetailView = $('subjectDetailView');
   const allSubjectsList = $('allSubjectsList');
 
-  // ---------- Вспомогательные функции ----------
+  // ---------- Вспомогательные ----------
   const normalize = v => v.trim().replace(',', '.');
   const gradeClass = g => (g >= 5 ? 'good' : g === 4 ? 'warn' : 'bad');
   const fmtAvg = n => n.toFixed(2).replace('.', ',');
@@ -304,167 +377,124 @@
     if (avg + EPS >= TARGET_3) return 3;
     return 2;
   }
-
   function fmtWeight(w) {
     let s = String(Number(w.toFixed(4)));
     if (!s.includes('.')) s += '.0';
     return s.replace('.', ',');
   }
-
   function pill(text, cls) {
     const span = document.createElement('span');
     span.className = 'pill ' + cls;
     span.textContent = text;
     return span;
   }
-
   function showError(message, field) {
     errorEl.textContent = message;
     if (field) field.focus();
   }
-
   function calcNeed(target, totalWeight, weightedSum) {
     const needed = (target * totalWeight - weightedSum) / (5 - target);
     return Math.max(0, Math.ceil(needed - EPS));
   }
-
-  // Вычисление среднего для любого предмета
   function getSubjectStats(subj) {
-    const entries = state.subjects[subj] || [];
+    const entries = inTerm(subj);
     if (entries.length === 0) return { avg: 0, current: 0, hasData: false };
     let totalWeight = 0, weightedSum = 0;
-    for (const item of entries) {
-      totalWeight += item.weight;
-      weightedSum += item.grade * item.weight;
-    }
+    for (const item of entries) { totalWeight += item.weight; weightedSum += item.grade * item.weight; }
     const avg = weightedSum / totalWeight;
     return { avg, current: gradeByAverage(avg), hasData: true };
   }
+  function clearQuick() {
+    document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('sel'));
+  }
 
-  // ---------- Отрисовка вкладок ----------
+  // ---------- Вкладки ----------
   function renderSubjects() {
     subjectsBar.innerHTML = '';
-    
-    // Вкладка "Мои оценки" (главная)
+    document.querySelectorAll('#termSeg button').forEach(b => b.classList.toggle('on', Number(b.dataset.term) === state.term));
+    $('subjLinks').hidden = state.currentSubject === null;
     const mainBtn = document.createElement('button');
     mainBtn.type = 'button';
     mainBtn.className = 'subject-btn' + (state.currentSubject === null ? ' active' : '');
     mainBtn.textContent = '🏠 Мои оценки';
-    mainBtn.onclick = () => {
-      state.currentSubject = null;
-      saveData();
-      renderAll();
-    };
+    mainBtn.onclick = () => { state.currentSubject = null; saveData(); renderAll(); };
     subjectsBar.appendChild(mainBtn);
 
-    // Кнопка добавления
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'subject-btn add';
     addBtn.textContent = '+ Предмет';
-    addBtn.onclick = () => {
-      const name = prompt('Название нового предмета:');
-      if (name && name.trim()) {
-        const cleanName = name.trim();
-        if (!state.subjects[cleanName]) {
-          state.subjects[cleanName] = [];
-          state.currentSubject = cleanName;
-          saveData();
-          renderAll();
-        } else {
-          alert('Такой предмет уже есть.');
-        }
-      }
-    };
+    addBtn.onclick = () => askName('Название нового предмета', '', name => {
+      if (state.subjects[name]) return 'Такой предмет уже есть.';
+      state.subjects[name] = [];
+      state.currentSubject = name;
+      saveData(); renderAll();
+    });
     subjectsBar.appendChild(addBtn);
   }
 
-  // ---------- Отрисовка главного экрана ----------
+  // ---------- Главный экран ----------
   function renderDashboard() {
     allSubjectsList.innerHTML = '';
-    
-    // Сортируем предметы по среднему баллу (от худшего к лучшему)
+    renderHero();
     const sorted = Object.keys(state.subjects).sort((a, b) => {
-      const statA = getSubjectStats(a);
-      const statB = getSubjectStats(b);
-      // Если нет оценок, ставим в конец (или в начало, по желанию)
-      if (!statA.hasData && !statB.hasData) return 0;
-      if (!statA.hasData) return 1;
-      if (!statB.hasData) return -1;
-      return statA.avg - statB.avg;
+      const A = getSubjectStats(a), B = getSubjectStats(b);
+      if (!A.hasData && !B.hasData) return 0;
+      if (!A.hasData) return 1;
+      if (!B.hasData) return -1;
+      return A.avg - B.avg;
     });
-
     sorted.forEach(subj => {
       const { avg, current, hasData } = getSubjectStats(subj);
-      
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'subject-item';
-      
       const nameSpan = document.createElement('span');
       nameSpan.className = 'subject-item-name';
       nameSpan.textContent = subj;
-      
       const gradeSpan = document.createElement('span');
       gradeSpan.className = 'subject-item-grade';
-      
       if (hasData) {
         gradeSpan.appendChild(document.createTextNode(fmtAvg(avg) + ' '));
         gradeSpan.appendChild(pill(current, gradeClass(current)));
       } else {
         gradeSpan.appendChild(document.createTextNode('Нет оценок'));
       }
-      
       btn.append(nameSpan, gradeSpan);
-      
-      // Клик по предмету -> открываем подробности
-      btn.onclick = () => {
-        state.currentSubject = subj;
-        saveData();
-        renderAll();
-      };
-      
+      btn.onclick = () => { state.currentSubject = subj; saveData(); renderAll(); };
       allSubjectsList.appendChild(btn);
     });
   }
 
-  // ---------- Отрисовка статистики предмета ----------
+  // ---------- Предмет ----------
   function renderDetail() {
     if (state.currentSubject === null) return;
-    
-    const entries = state.subjects[state.currentSubject] || [];
+    const entries = inTerm(state.currentSubject);
     const hasData = entries.length > 0;
-    
+
     resultCard.hidden = false;
     currentSubjectTitle.textContent = state.currentSubject;
-    
     tableCard.hidden = !hasData;
     forecastCard.hidden = !hasData;
     emptyEl.hidden = hasData;
     statsEl.hidden = !hasData;
     tbody.textContent = '';
-
     if (!hasData) return;
 
     let totalWeight = 0, weightedSum = 0;
-
     for (const item of entries) {
       totalWeight += item.weight;
       weightedSum += item.grade * item.weight;
 
       const tr = document.createElement('tr');
-
       const tdSubject = document.createElement('td');
       tdSubject.textContent = item.subject;
-
       const tdGrade = document.createElement('td');
       tdGrade.className = 'center';
       tdGrade.appendChild(pill(item.grade, gradeClass(item.grade)));
-
       const tdWeight = document.createElement('td');
       tdWeight.className = 'center';
       tdWeight.textContent = fmtWeight(item.weight);
-
       const tdDelete = document.createElement('td');
       tdDelete.className = 'center';
       const btn = document.createElement('button');
@@ -474,33 +504,27 @@
       btn.textContent = '✕';
       btn.setAttribute('aria-label', 'Удалить оценку: ' + item.subject);
       tdDelete.appendChild(btn);
-
       tr.append(tdSubject, tdGrade, tdWeight, tdDelete);
       tbody.appendChild(tr);
     }
 
     const avg = weightedSum / totalWeight;
     const current = gradeByAverage(avg);
-
     avgEl.textContent = fmtAvg(avg);
     avgEl.className = 'pill big ' + gradeClass(current);
     currentEl.textContent = current;
     currentEl.className = 'pill big ' + gradeClass(current);
 
-    // Прогноз
-    const need5 = calcNeed(TARGET_5, totalWeight, weightedSum);
-    const need4 = calcNeed(TARGET_4, totalWeight, weightedSum);
-    const need3 = calcNeed(TARGET_3, totalWeight, weightedSum);
-
-    need5El.textContent = need5 === 0 ? 'уже есть' : need5;
-    need4El.textContent = need4 === 0 ? 'уже есть' : need4;
-    need3El.textContent = need3 === 0 ? 'уже есть' : need3;
+    const n5 = calcNeed(TARGET_5, totalWeight, weightedSum);
+    const n4 = calcNeed(TARGET_4, totalWeight, weightedSum);
+    const n3 = calcNeed(TARGET_3, totalWeight, weightedSum);
+    need5El.textContent = n5 === 0 ? 'уже есть' : n5;
+    need4El.textContent = n4 === 0 ? 'уже есть' : n4;
+    need3El.textContent = n3 === 0 ? 'уже есть' : n3;
   }
 
-  // ---------- Общая отрисовка ----------
   function renderAll() {
     renderSubjects();
-    
     if (state.currentSubject === null) {
       dashboardView.hidden = false;
       subjectDetailView.hidden = true;
@@ -508,39 +532,27 @@
     } else {
       dashboardView.hidden = true;
       subjectDetailView.hidden = false;
+      clearQuick();
       renderDetail();
     }
   }
 
   // ---------- События ----------
-
-  // Быстрый ввод оценки
   document.querySelectorAll('.q-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.preventDefault();
       gradeEl.value = btn.dataset.g;
-      
-      document.querySelectorAll('.q-btn').forEach(b => {
-        b.style.borderColor = 'var(--line)';
-        b.style.background = 'var(--bg)';
-      });
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.background = 'var(--bg)';
-      
+      clearQuick();
+      btn.classList.add('sel');
       errorEl.textContent = '';
     });
   });
 
-  // Отправка формы
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (state.currentSubject === null) return;
-
     const workName = subjectEl.value.trim() || 'Без названия';
-
-    if (!gradeEl.value) {
-      return showError('Сначала выбери оценку (нажми на цифру 2, 3, 4 или 5).');
-    }
+    if (!gradeEl.value) return showError('Сначала выберите оценку: 2, 3, 4 или 5.');
     const grade = Number(gradeEl.value);
 
     let weight = 1;
@@ -553,65 +565,154 @@
       weight = w;
     }
 
-    state.subjects[state.currentSubject].push({ 
-      id: state.nextId++, 
-      subject: workName, 
-      grade, 
-      weight 
-    });
-    
+    state.subjects[state.currentSubject].push({ id: state.nextId++, subject: workName, grade, weight, term: state.term || defaultTerm(), date: Date.now() });
     saveData();
-    
     errorEl.textContent = '';
-    subjectEl.value = '';
-    weightEl.value = '';
-    gradeEl.value = '';
-    
-    document.querySelectorAll('.q-btn').forEach(b => {
-      b.style.borderColor = 'var(--line)';
-      b.style.background = 'var(--bg)';
-    });
-
-    renderDetail(); // Перерисовываем только текущий предмет
+    subjectEl.value = ''; weightEl.value = ''; gradeEl.value = '';
+    clearQuick();
+    renderDetail();
   });
 
-  // Удаление оценки
   tbody.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-id]');
     if (!btn || state.currentSubject === null) return;
     const id = Number(btn.dataset.id);
-    state.subjects[state.currentSubject] = state.subjects[state.currentSubject].filter(item => item.id !== id);
+    const list = state.subjects[state.currentSubject];
+    const idx = list.findIndex(item => item.id === id);
+    if (idx < 0) return;
+    const removed = list.splice(idx, 1)[0];
+    showToast('Оценка удалена', () => { list.splice(Math.min(idx, list.length), 0, removed); saveData(); renderDetail(); });
     saveData();
     renderDetail();
   });
 
-  // Очистка текущего предмета
   let armedTimer = null;
   function disarm() {
     clearTimeout(armedTimer);
     armedTimer = null;
     clearBtn.classList.remove('armed');
-    clearBtn.textContent = 'Очистить предмет';
+    clearBtn.textContent = 'Очистить список';
   }
-  
   clearBtn.addEventListener('click', function () {
     if (state.currentSubject === null) return;
-    
     if (armedTimer === null) {
       clearBtn.classList.add('armed');
       clearBtn.textContent = 'Точно очистить?';
       armedTimer = setTimeout(disarm, 3000);
     } else {
       disarm();
-      state.subjects[state.currentSubject] = [];
+      state.subjects[state.currentSubject] = state.subjects[state.currentSubject].filter(it => state.term !== 0 && it.term !== state.term);
       saveData();
       renderDetail();
     }
   });
 
-  [subjectEl, weightEl].forEach(el =>
-    el.addEventListener('input', () => { errorEl.textContent = ''; })
-  );
+  [subjectEl, weightEl].forEach(el => el.addEventListener('input', () => { errorEl.textContent = ''; }));
+
+  // ---------- Триместры ----------
+  document.querySelectorAll('#termSeg button').forEach(b => {
+    b.onclick = () => { state.term = Number(b.dataset.term); saveData(); renderAll(); };
+  });
+
+  // ---------- Уведомление с отменой ----------
+  const toastEl = $('toast');
+  let toastTimer = null, undoFn = null;
+  function showToast(text, undo) {
+    undoFn = undo;
+    $('toastText').textContent = text;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.hidden = true; undoFn = null; }, 5000);
+  }
+  $('undoBtn').onclick = () => { if (undoFn) undoFn(); toastEl.hidden = true; undoFn = null; };
+
+  // ---------- Окно с названием ----------
+  const nameDlg = $('nameDlg'), nameInput = $('nameInput'), nameLabel = $('nameLabel');
+  let nameCb = null;
+  function askName(label, initial, cb) {
+    nameCb = cb;
+    nameLabel.textContent = label;
+    nameLabel.style.color = '';
+    nameInput.value = initial;
+    nameDlg.showModal();
+    nameInput.focus();
+  }
+  $('nameCancel').onclick = () => nameDlg.close();
+  $('nameForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    if (!name) return;
+    const err = nameCb(name);
+    if (err) { nameLabel.textContent = err; nameLabel.style.color = 'var(--bad)'; } else nameDlg.close();
+  });
+
+  // ---------- Переименование и удаление предмета ----------
+  $('renameBtn').onclick = () => {
+    const old = state.currentSubject;
+    if (old === null) return;
+    askName('Новое название предмета', old, name => {
+      if (name === old) return;
+      if (state.subjects[name]) return 'Такой предмет уже есть.';
+      const next = {};
+      Object.keys(state.subjects).forEach(k => { next[k === old ? name : k] = state.subjects[k]; });
+      state.subjects = next;
+      state.currentSubject = name;
+      saveData(); renderAll();
+    });
+  };
+  const delBtn = $('delSubj');
+  let delTimer = null;
+  function disarmDel() {
+    clearTimeout(delTimer);
+    delTimer = null;
+    delBtn.classList.remove('armed');
+    delBtn.textContent = 'Удалить предмет';
+  }
+  delBtn.onclick = () => {
+    const subj = state.currentSubject;
+    if (subj === null) return;
+    if (delTimer === null) {
+      delBtn.classList.add('armed');
+      delBtn.textContent = 'Точно удалить?';
+      delTimer = setTimeout(disarmDel, 3000);
+      return;
+    }
+    disarmDel();
+    const saved = state.subjects[subj];
+    delete state.subjects[subj];
+    state.currentSubject = null;
+    saveData(); renderAll();
+    showToast('Предмет «' + subj + '» удалён', () => { state.subjects[subj] = saved; saveData(); renderAll(); });
+  };
+
+  // ---------- Резервная копия ----------
+  const dataBox = $('dataBox'), dataMsg = $('dataMsg');
+  $('exportBtn').onclick = () => {
+    dataBox.value = JSON.stringify({ subjects: state.subjects, nextId: state.nextId });
+    dataBox.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    dataMsg.textContent = ok ? 'Скопировано. Сохраните текст в заметках.' : 'Выделите текст и скопируйте его.';
+  };
+  $('importBtn').onclick = () => {
+    try {
+      const d = JSON.parse(dataBox.value);
+      if (!d || typeof d.subjects !== 'object') throw 0;
+      let maxId = 0;
+      for (const list of Object.values(d.subjects)) {
+        if (!Array.isArray(list)) throw 0;
+        list.forEach(it => {
+          if (!isFinite(it.grade) || !isFinite(it.weight)) throw 0;
+          maxId = Math.max(maxId, Number(it.id) || 0);
+        });
+      }
+      state.subjects = d.subjects;
+      state.nextId = Math.max(Number(d.nextId) || 1, maxId + 1);
+      state.currentSubject = null;
+      fixTerms(); saveData(); renderAll();
+      dataMsg.textContent = 'Данные восстановлены.';
+    } catch (e) { dataMsg.textContent = 'Не удалось прочитать текст. Проверьте, что он скопирован целиком.'; }
+  };
 
   renderAll();
 })();
