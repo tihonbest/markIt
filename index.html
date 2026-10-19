@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MarkIt — Калькулятор оценок</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a84ff">
 <style>
 :root{
   --bgs:#eef0f6;--text:#14161c;--muted:#5d6472;--line:rgba(20,22,28,.1);
@@ -245,6 +247,15 @@ textarea{width:100%;height:70px;padding:10px 12px;font:.75rem/1.3 ui-monospace,m
 <script>
 (function () {
   'use strict';
+
+  // ---------- PWA / Офлайн-режим ----------
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker зарегистрирован', reg))
+        .catch(err => console.warn('Ошибка регистрации Service Worker', err));
+    });
+  }
 
   // ---------- Темы ----------
   const THEME_KEY = 'markit_theme_v1';
