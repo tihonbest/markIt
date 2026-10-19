@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MarkIt — Калькулятор оценок</title>
 <style>
-  /* Цвета вынесены в переменные; тёмная тема включается автоматически */
   :root {
     --bg: #f5f6f8; --card: #fff; --text: #1f2430; --muted: #6b7280; --line: #e5e7eb;
     --accent: #3b63f0; --accent-hover: #2f50c8;
@@ -32,24 +31,56 @@
   [hidden] { display: none !important; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { font-size: 1.5rem; margin: 0 0 16px; }
+  h1 { font-size: 1.5rem; margin: 0 0 16px; display: flex; align-items: center; justify-content: space-between; }
   h2 { font-size: 1.05rem; margin: 0; }
 
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
   .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 
+  /* Вкладки предметов */
+  .subjects-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .subjects-bar::-webkit-scrollbar { display: none; }
+  .subject-btn {
+    background: var(--card); border: 1px solid var(--line); color: var(--muted);
+    padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .subject-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .subject-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .subject-btn.add { background: transparent; border-style: dashed; }
+
   /* Форма */
   form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .full { grid-column: 1 / -1; }
   label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
+  
   input { width: 100%; padding: 10px 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
   input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* Кнопки быстрого ввода */
+  .quick-grades { display: flex; gap: 8px; margin-bottom: 4px; }
+  .q-btn {
+    flex: 1; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+    padding: 8px 0; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    transition: all 0.1s;
+  }
+  .q-btn:hover { border-color: var(--accent); }
+  .q-btn[data-g="5"] { color: var(--good); }
+  .q-btn[data-g="5"]:hover { background: var(--good-bg); border-color: var(--good); }
+  .q-btn[data-g="4"] { color: var(--warn); }
+  .q-btn[data-g="4"]:hover { background: var(--warn-bg); border-color: var(--warn); }
+  .q-btn[data-g="3"] { color: var(--bad); }
+  .q-btn[data-g="3"]:hover { background: var(--bad-bg); border-color: var(--bad); }
+  .q-btn[data-g="2"] { color: var(--bad); }
+  .q-btn[data-g="2"]:hover { background: var(--bad-bg); border-color: var(--bad); }
 
   .btn { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 11px 16px; cursor: pointer; }
   .btn.primary { background: var(--accent); color: #fff; }
   .btn.primary:hover { background: var(--accent-hover); }
   .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; font-weight: 500; }
   .btn.ghost:hover, .btn.ghost.armed { color: var(--bad); border-color: var(--bad); }
+  .btn.danger-sm { color: var(--bad); border-color: transparent; padding: 4px 8px; font-size: 0.85rem; }
+  .btn.danger-sm:hover { background: var(--bad-bg); }
 
   .error { color: var(--bad); font-size: .9rem; margin: 10px 0 0; min-height: 1.4em; }
   .muted { color: var(--muted); margin: 8px 0 0; }
@@ -83,31 +114,46 @@
 </head>
 <body>
 <main class="wrap">
-  <h1>MarkIt — Калькулятор оценок</h1>
+  <h1>MarkIt <span style="font-size:1rem; font-weight:400; color:var(--muted);">Калькулятор оценок</span></h1>
+
+  <!-- Панель предметов -->
+  <div class="subjects-bar" id="subjectsBar">
+    <!-- Вкладки генерируются через JS -->
+  </div>
 
   <!-- Форма добавления оценки -->
   <section class="card">
     <form id="form" novalidate autocomplete="off">
       <div class="full">
-        <label for="subject">Предмет</label>
-        <input id="subject" type="text" maxlength="60" placeholder="Например, Математика">
+        <label>Оценка (нажми на цифру)</label>
+        <div class="quick-grades">
+          <button type="button" class="q-btn" data-g="5">5</button>
+          <button type="button" class="q-btn" data-g="4">4</button>
+          <button type="button" class="q-btn" data-g="3">3</button>
+          <button type="button" class="q-btn" data-g="2">2</button>
+        </div>
+        <!-- Поле для ручного ввода, если понадобится -->
+        <input id="grade" type="text" inputmode="numeric" maxlength="3" placeholder="Или впиши вручную..." style="margin-top:8px;">
       </div>
-      <div>
-        <label for="grade">Оценка (2–5)</label>
-        <input id="grade" type="text" inputmode="numeric" maxlength="3" placeholder="5">
+      <div class="full">
+        <label for="subject">Название работы / комментарий (необязательно)</label>
+        <input id="subject" type="text" maxlength="60" placeholder="Например, Контрольная">
       </div>
       <div>
         <label for="weight">Вес (по умолчанию 1,0)</label>
         <input id="weight" type="text" inputmode="decimal" placeholder="1,0">
       </div>
-      <button type="submit" class="btn primary full">Добавить оценку</button>
+      <button type="submit" class="btn primary" style="align-self:end;">Добавить</button>
     </form>
     <p id="error" class="error" role="alert"></p>
   </section>
 
   <!-- Результат -->
-  <section class="card">
-    <h2>Результат</h2>
+  <section class="card" id="resultCard" hidden>
+    <div class="card-head">
+      <h2>Результат</h2>
+      <span id="currentSubjectTitle" style="color:var(--accent); font-weight:600; font-size:0.9rem;"></span>
+    </div>
     <p id="empty" class="muted">Пока нет оценок</p>
     <div id="stats" hidden>
       <div class="stat">
@@ -145,12 +191,12 @@
   <section class="card" id="tableCard" hidden>
     <div class="card-head">
       <h2>Оценки</h2>
-      <button type="button" id="clear" class="btn ghost">Очистить всё</button>
+      <button type="button" id="clear" class="btn ghost">Очистить предмет</button>
     </div>
     <div class="scroll">
       <table>
         <thead>
-          <tr><th>Предмет</th><th class="center">Оценка</th><th class="center">Вес</th><th class="center">Удалить</th></tr>
+          <tr><th>Работа</th><th class="center">Оценка</th><th class="center">Вес</th><th class="center">Удалить</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -170,26 +216,41 @@
   const TARGET_3 = 2.6;
   const EPS = 1e-9;
   const NUM_RE = /^(\d+\.?\d*|\.\d+)$/;
+  const STORAGE_KEY = 'markit_data_v2';
 
   // ---------- Данные (сохранение в localStorage) ----------
-  const STORAGE_KEY = 'markit_data';
-  let entries = [];
-  let nextId = 1;
+  // Структура: { currentSubject: "Математика", subjects: { "Математика": [ ...entries ], ... }, nextId: 1 }
+  let state = {
+    currentSubject: '',
+    subjects: {},
+    nextId: 1
+  };
 
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      const data = JSON.parse(saved);
-      entries = data.entries || [];
-      nextId = data.nextId || 1;
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.subjects) {
+        state = parsed;
+      }
     }
   } catch (e) {
     console.warn('Не удалось загрузить данные', e);
   }
 
+  // Если предметов вообще нет, создадим дефолтный
+  if (Object.keys(state.subjects).length === 0) {
+    state.subjects['Мои оценки'] = [];
+    state.currentSubject = 'Мои оценки';
+  }
+  // Если текущий предмет не существует (например, удалили), берем первый попавшийся
+  if (!state.subjects[state.currentSubject]) {
+    state.currentSubject = Object.keys(state.subjects)[0];
+  }
+
   function saveData() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ entries, nextId }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
       console.warn('Не удалось сохранить данные', e);
     }
@@ -203,6 +264,8 @@
   const tableCard = $('tableCard'), tbody = $('tbody'), clearBtn = $('clear');
   const forecastCard = $('forecastCard');
   const need5El = $('need5'), need4El = $('need4'), need3El = $('need3');
+  const resultCard = $('resultCard');
+  const subjectsBar = $('subjectsBar'), currentSubjectTitle = $('currentSubjectTitle');
 
   // ---------- Вспомогательные функции ----------
   const normalize = v => v.trim().replace(',', '.');
@@ -218,7 +281,7 @@
 
   function fmtWeight(w) {
     let s = String(Number(w.toFixed(4)));
-    if (!s.includes('.')) s) += '.0';
+    if (!s.includes('.')) s += '.0';
     return s.replace('.', ',');
   }
 
@@ -234,15 +297,81 @@
     if (field) field.focus();
   }
 
-  // Сколько пятёрок весом 1.0 нужно для достижения целевого среднего
   function calcNeed(target, totalWeight, weightedSum) {
     const needed = (target * totalWeight - weightedSum) / (5 - target);
     return Math.max(0, Math.ceil(needed - EPS));
   }
 
-  // ---------- Отрисовка ----------
-  function render() {
+  // ---------- Отрисовка вкладок предметов ----------
+  function renderSubjects() {
+    subjectsBar.innerHTML = '';
+    
+    Object.keys(state.subjects).forEach(subj => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'subject-btn' + (subj === state.currentSubject ? ' active' : '');
+      btn.textContent = subj;
+      
+      // Обработка переключения
+      btn.onclick = () => {
+        if (state.currentSubject !== subj) {
+          state.currentSubject = subj;
+          saveData();
+          renderAll();
+        }
+      };
+      
+      // Удаление предмета (по двойному клику или долгому нажатию на мобильных)
+      btn.ondblclick = (e) => {
+        e.preventDefault();
+        if (Object.keys(state.subjects).length <= 1) {
+          alert('Нельзя удалить единственный предмет.');
+          return;
+        }
+        if (confirm(`Удалить предмет "${subj}" и все его оценки?`)) {
+          delete state.subjects[subj];
+          if (state.currentSubject === subj) {
+            state.currentSubject = Object.keys(state.subjects)[0];
+          }
+          saveData();
+          renderAll();
+        }
+      };
+      
+      btn.title = 'Двойной клик для удаления';
+      subjectsBar.appendChild(btn);
+    });
+
+    // Кнопка добавления предмета
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'subject-btn add';
+    addBtn.textContent = '+ Предмет';
+    addBtn.onclick = () => {
+      const name = prompt('Название нового предмета:');
+      if (name && name.trim()) {
+        const cleanName = name.trim();
+        if (!state.subjects[cleanName]) {
+          state.subjects[cleanName] = [];
+          state.currentSubject = cleanName;
+          saveData();
+          renderAll();
+        } else {
+          alert('Такой предмет уже есть.');
+        }
+      }
+    };
+    subjectsBar.appendChild(addBtn);
+  }
+
+  // ---------- Отрисовка статистики и таблицы ----------
+  function renderData() {
+    const entries = state.subjects[state.currentSubject] || [];
     const hasData = entries.length > 0;
+    
+    resultCard.hidden = false;
+    currentSubjectTitle.textContent = state.currentSubject;
+    
     tableCard.hidden = !hasData;
     forecastCard.hidden = !hasData;
     emptyEl.hidden = hasData;
@@ -292,22 +421,36 @@
     currentEl.textContent = current;
     currentEl.className = 'pill big ' + gradeClass(current);
 
-    // Прогнозы
     need5El.textContent = calcNeed(TARGET_5, totalWeight, weightedSum) || '0 — уже есть';
     need4El.textContent = calcNeed(TARGET_4, totalWeight, weightedSum) || '0 — уже есть';
     need3El.textContent = calcNeed(TARGET_3, totalWeight, weightedSum) || '0 — уже есть';
   }
 
-  // ---------- Обработчики ----------
+  function renderAll() {
+    renderSubjects();
+    renderData();
+  }
 
+  // ---------- События ----------
+
+  // Быстрый ввод оценки
+  document.querySelectorAll('.q-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      gradeEl.value = btn.dataset.g;
+      gradeEl.focus();
+      errorEl.textContent = '';
+    });
+  });
+
+  // Отправка формы
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const subject = subjectEl.value.trim() || 'Без названия';
+    const workName = subjectEl.value.trim() || 'Без названия';
 
     const gradeText = normalize(gradeEl.value);
     if (!NUM_RE.test(gradeText) || ![2, 3, 4, 5].includes(Number(gradeText))) {
-      return showError('Оценка должна быть числом 2, 3, 4 или 5.', gradeEl);
+      return showError('Выберите оценку (2, 3, 4 или 5) или впишите её вручную.', gradeEl);
     }
     const grade = Number(gradeText);
 
@@ -315,38 +458,46 @@
     const weightText = normalize(weightEl.value);
     if (weightText !== '') {
       const w = Number(weightText);
-      if (!NUM_RE.test(weightText || !isFinite(w) || w <= 0) {
-        return showError('Вес должен быть числом больше нуля (например, 0,5).', weightEl);
+      if (!NUM_RE.test(weightText) || !isFinite(w) || w <= 0) {
+        return showError('Вес должен быть числом больше нуля.', weightEl);
       }
       weight = w;
     }
 
-    entries.push({ id: nextId++, subject, grade, weight });
+    state.subjects[state.currentSubject].push({ 
+      id: state.nextId++, 
+      subject: workName, 
+      grade, 
+      weight 
+    });
+    
     saveData();
-
     errorEl.textContent = '';
     gradeEl.value = '';
     weightEl.value = '';
-    gradeEl.focus();
-    render();
+    subjectEl.value = '';
+    renderData(); // Перерисовываем только данные, вкладки не трогаем
   });
 
+  // Удаление оценки
   tbody.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-id]');
     if (!btn) return;
     const id = Number(btn.dataset.id);
-    entries = entries.filter(item => item.id !== id);
+    state.subjects[state.currentSubject] = state.subjects[state.currentSubject].filter(item => item.id !== id);
     saveData();
-    render();
+    renderData();
   });
 
+  // Очистка текущего предмета
   let armedTimer = null;
   function disarm() {
     clearTimeout(armedTimer);
     armedTimer = null;
     clearBtn.classList.remove('armed');
-    clearBtn.textContent = 'Очистить всё';
+    clearBtn.textContent = 'Очистить предмет';
   }
+  
   clearBtn.addEventListener('click', function () {
     if (armedTimer === null) {
       clearBtn.classList.add('armed');
@@ -354,9 +505,9 @@
       armedTimer = setTimeout(disarm, 3000);
     } else {
       disarm();
-      entries = [];
+      state.subjects[state.currentSubject] = [];
       saveData();
-      render();
+      renderData();
     }
   });
 
@@ -364,7 +515,7 @@
     el.addEventListener('input', () => { errorEl.textContent = ''; })
   );
 
-  render();
+  renderAll();
 })();
 </script>
 </body>
