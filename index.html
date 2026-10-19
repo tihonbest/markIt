@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Калькулятор школьных оценок</title>
+<style>
+  /* Цвета вынесены в переменные; тёмная тема включается автоматически */
+  :root {
+    --bg:#f5f6f8; --card:#fff; --text:#1f2430; --muted:#6b7280; --line:#e5e7eb;
+    --accent:#3b63f0; --accent-hover:#2f50c8;
+    --good:#1e8e4e; --good-bg:#e3f6ea; --warn:#a96b00; --warn-bg:#fff3cc; --bad:#c62d2d; --bad-bg:#fde4e4;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#14161b; --card:#1d2027; --text:#e8eaf0; --muted:#98a0ae; --line:#2c313b;
+      --accent:#5b7fff; --accent-hover:#7a97ff;
+      --good:#5fd68c; --good-bg:#163524; --warn:#f2c14e; --warn-bg:#3a2f10; --bad:#ff7b7b; --bad-bg:#3d1b1b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#14161b; --card:#1d2027; --text:#e8eaf0; --muted:#98a0ae; --line:#2c313b;
+    --accent:#5b7fff; --accent-hover:#7a97ff;
+    --good:#5fd68c; --good-bg:#163524; --warn:#f2c14e; --warn-bg:#3a2f10; --bad:#ff7b7b; --bad-bg:#3d1b1b;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:640px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:1.5rem; margin:0 0 16px; }
+  h2 { font-size:1.05rem; margin:0; }
+
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px; }
+  .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+
+  /* Форма: две колонки, предмет и кнопка на всю ширину */
+  form { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .full { grid-column:1 / -1; }
+  label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:4px; }
+  input { width:100%; padding:10px 12px; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:10px; }
+  input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+
+  .btn { font:inherit; font-weight:600; border:0; border-radius:10px; padding:11px 16px; cursor:pointer; }
+  .btn.primary { background:var(--accent); color:#fff; }
+  .btn.primary:hover { background:var(--accent-hover); }
+  .btn.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); padding:6px 12px; font-weight:500; }
+  .btn.ghost:hover, .btn.ghost.armed { color:var(--bad); border-color:var(--bad); }
+
+  .error { color:var(--bad); font-size:.9rem; margin:10px 0 0; min-height:1.4em; }
+  .muted { color:var(--muted); margin:8px 0 0; }
+
+  /* Таблица (при нехватке места прокручивается внутри карточки) */
+  .scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:.8rem; font-weight:500; color:var(--muted); padding:6px 8px; }
+  td { padding:10px 8px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+  th.center, td.center { text-align:center; width:1%; white-space:nowrap; }
+  .icon-btn { font:inherit; background:none; border:0; color:var(--muted); cursor:pointer; padding:4px 8px; border-radius:8px; }
+  .icon-btn:hover { color:var(--bad); background:var(--bad-bg); }
+
+  /* Цветные «таблетки»: 5 — зелёный, 4 — жёлтый, 3 и ниже — красный */
+  .pill { display:inline-block; min-width:2.2em; text-align:center; padding:2px 10px; border-radius:8px; font-weight:700; }
+  .pill.big { font-size:1.25rem; padding:2px 14px; }
+  .pill.good { color:var(--good); background:var(--good-bg); }
+  .pill.warn { color:var(--warn); background:var(--warn-bg); }
+  .pill.bad  { color:var(--bad);  background:var(--bad-bg); }
+
+  .stat { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--line); }
+  .stat:first-of-type { border-top:0; }
+  .stat-value { font-weight:700; font-size:1.15rem; text-align:right; }
+  .note { color:var(--muted); font-size:.8rem; text-align:center; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Калькулятор школьных оценок</h1>
+
+  <!-- Форма добавления оценки -->
+  <section class="card">
+    <form id="form" novalidate autocomplete="off">
+      <div class="full">
+        <label for="subject">Предмет</label>
+        <input id="subject" type="text" maxlength="60" placeholder="Например, Математика">
+      </div>
+      <div>
+        <label for="grade">Оценка (2–5)</label>
+        <input id="grade" type="text" inputmode="numeric" maxlength="3" placeholder="5">
+      </div>
+      <div>
+        <label for="weight">Вес (по умолчанию 1,0)</label>
+        <input id="weight" type="text" inputmode="decimal" placeholder="1,0">
+      </div>
+      <button type="submit" class="btn primary full">Добавить оценку</button>
+    </form>
+    <p id="error" class="error" role="alert"></p>
+  </section>
+
+  <!-- Результат -->
+  <section class="card">
+    <h2>Результат</h2>
+    <p id="empty" class="muted">Пока нет оценок</p>
+    <div id="stats" hidden>
+      <div class="stat"><span>Средневзвешенный балл</span><span id="avg" class="pill big good">0,00</span></div>
+      <div class="stat"><span>Текущая оценка</span><span id="current" class="pill big good">5</span></div>
+      <div class="stat"><span>Пятёрок весом 1,0 до оценки «5»</span><span id="need" class="stat-value">0</span></div>
+    </div>
+  </section>
+
+  <!-- Таблица оценок -->
+  <section class="card" id="tableCard" hidden>
+    <div class="card-head">
+      <h2>Оценки</h2>
+      <button type="button" id="clear" class="btn ghost">Очистить всё</button>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Предмет</th><th class="center">Оценка</th><th class="center">Вес</th><th class="center">Удалить</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="note">Данные хранятся только на этой странице и сбрасываются при перезагрузке.</p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Константы ----------
+  const TARGET = 4.6;                      // порог среднего для оценки «5»
+  const EPS = 1e-9;                        // защита от ошибок округления
+  const NUM_RE = /^(\d+\.?\d*|\.\d+)$/;    // формат числа: 5, 0.5, .5, 2.
+
+  // ---------- Данные (только в памяти страницы) ----------
+  let entries = [];   // { id, subject, grade, weight }
+  let nextId = 1;
+
+  // ---------- Элементы ----------
+  const $ = id => document.getElementById(id);
+  const form = $('form'), subjectEl = $('subject'), gradeEl = $('grade'), weightEl = $('weight');
+  const errorEl = $('error'), emptyEl = $('empty'), statsEl = $('stats');
+  const avgEl = $('avg'), currentEl = $('current'), needEl = $('need');
+  const tableCard = $('tableCard'), tbody = $('tbody'), clearBtn = $('clear');
+
+  // ---------- Вспомогательные функции ----------
+  const normalize = v => v.trim().replace(',', '.');                    // "0,5" -> "0.5"
+  const gradeClass = g => (g >= 5 ? 'good' : g === 4 ? 'warn' : 'bad'); // цвет по оценке
+  const fmtAvg = n => n.toFixed(2).replace('.', ',');                   // 2 знака, запятая
+
+  // Текущая оценка по среднему баллу
+  function gradeByAverage(avg) {
+    if (avg + EPS >= 4.6) return 5;
+    if (avg + EPS >= 3.6) return 4;
+    if (avg + EPS >= 2.6) return 3;
+    return 2;
+  }
+
+  // Вес для показа: 1 -> "1,0", 0.5 -> "0,5"
+  function fmtWeight(w) {
+    let s = String(Number(w.toFixed(4)));
+    if (!s.includes('.')) s += '.0';
+    return s.replace('.', ',');
+  }
+
+  function pill(text, cls) {
+    const span = document.createElement('span');
+    span.className = 'pill ' + cls;
+    span.textContent = text;
+    return span;
+  }
+
+  function showError(message, field) {
+    errorEl.textContent = message;
+    if (field) field.focus();
+  }
+
+  // ---------- Отрисовка ----------
+  function render() {
+    const hasData = entries.length > 0;
+    tableCard.hidden = !hasData;
+    emptyEl.hidden = hasData;
+    statsEl.hidden = !hasData;
+    tbody.textContent = '';
+
+    // Нет оценок — «Пока нет оценок», ничего не считаем
+    if (!hasData) return;
+
+    let totalWeight = 0, weightedSum = 0;
+
+    for (const item of entries) {
+      totalWeight += item.weight;
+      weightedSum += item.grade * item.weight;
+
+      const tr = document.createElement('tr');
+
+      const tdSubject = document.createElement('td');
+      tdSubject.textContent = item.subject;   // textContent — безопасно
+
+      const tdGrade = document.createElement('td');
+      tdGrade.className = 'center';
+      tdGrade.appendChild(pill(item.grade, gradeClass(item.grade)));
+
+      const tdWeight = document.createElement('td');
+      tdWeight.className = 'center';
+      tdWeight.textContent = fmtWeight(item.weight);
+
+      const tdDelete = document.createElement('td');
+      tdDelete.className = 'center';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'icon-btn';
+      btn.dataset.id = item.id;
+      btn.textContent = '✕';
+      btn.setAttribute('aria-label', 'Удалить оценку: ' + item.subject);
+      tdDelete.appendChild(btn);
+
+      tr.append(tdSubject, tdGrade, tdWeight, tdDelete);
+      tbody.appendChild(tr);
+    }
+
+    // Средневзвешенный балл = сумма(оценка × вес) / сумма(весов)
+    const avg = weightedSum / totalWeight;
+    const current = gradeByAverage(avg);
+
+    // Сколько пятёрок весом 1.0 нужно до среднего 4.6:
+    // x = (4.6 * сумма_весов - взвешенная_сумма) / (5 - 4.6), вверх, минимум 0
+    const need = Math.max(0, Math.ceil((TARGET * totalWeight - weightedSum) / (5 - TARGET) - EPS));
+
+    avgEl.textContent = fmtAvg(avg);
+    avgEl.className = 'pill big ' + gradeClass(current);
+    currentEl.textContent = current;
+    currentEl.className = 'pill big ' + gradeClass(current);
+    needEl.textContent = need === 0 ? '0 — оценка уже 5' : need;
+  }
+
+  // ---------- Обработчики ----------
+
+  // Добавление оценки (кнопка или Enter)
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const subject = subjectEl.value.trim() || 'Без названия';
+
+    // Оценка: только 2, 3, 4 или 5
+    const gradeText = normalize(gradeEl.value);
+    if (!NUM_RE.test(gradeText) || ![2, 3, 4, 5].includes(Number(gradeText))) {
+      return showError('Оценка должна быть числом 2, 3, 4 или 5.', gradeEl);
+    }
+    const grade = Number(gradeText);
+
+    // Вес: пусто = 1.0, иначе число больше нуля
+    let weight = 1;
+    const weightText = normalize(weightEl.value);
+    if (weightText !== '') {
+      const w = Number(weightText);
+      if (!NUM_RE.test(weightText) || !isFinite(w) || w <= 0) {
+        return showError('Вес должен быть числом больше нуля (например, 0,5).', weightEl);
+      }
+      weight = w;
+    }
+
+    entries.push({ id: nextId++, subject, grade, weight });
+    errorEl.textContent = '';
+    gradeEl.value = '';
+    weightEl.value = '';
+    gradeEl.focus();   // предмет оставляем — удобно вводить несколько оценок подряд
+    render();
+  });
+
+  // Удаление одной строки (делегирование событий)
+  tbody.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-id]');
+    if (!btn) return;
+    const id = Number(btn.dataset.id);
+    entries = entries.filter(item => item.id !== id);
+    render();
+  });
+
+  // «Очистить всё»: первое нажатие просит подтвердить, второе — стирает.
+  // (Вместо confirm(): всплывающие окна в встроенной странице могут быть заблокированы)
+  let armedTimer = null;
+  function disarm() {
+    clearTimeout(armedTimer);
+    armedTimer = null;
+    clearBtn.classList.remove('armed');
+    clearBtn.textContent = 'Очистить всё';
+  }
+  clearBtn.addEventListener('click', function () {
+    if (armedTimer === null) {
+      clearBtn.classList.add('armed');
+      clearBtn.textContent = 'Точно очистить?';
+      armedTimer = setTimeout(disarm, 3000);
+    } else {
+      disarm();
+      entries = [];
+      render();
+    }
+  });
+
+  // Сообщение об ошибке пропадает, когда пользователь правит ввод
+  [subjectEl, gradeEl, weightEl].forEach(el =>
+    el.addEventListener('input', () => { errorEl.textContent = ''; })
+  );
+
+  render();   // первая отрисовка: «Пока нет оценок»
+})();
+</script>
+</body>
+</html>
