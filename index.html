@@ -52,7 +52,7 @@
   /* Форма */
   form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .full { grid-column: 1 / -1; }
-  label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
+  label { display:em block;; font-size: .85rem; text color: var-align: center(--muted); margin-bottom: 4px; }
   
   input { width: 100%; padding: 10px 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
   input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -61,7 +61,7 @@
   .quick-grades { display: flex; gap: 8px; margin-bottom: 4px; }
   .q-btn {
     flex: 1; background: var(--bg); border: 1px solid var(--line); color: var(--text);
-    padding: 8px 0; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    padding: 10px 0; border-radius: 8px; font-size: 1.15rem; font-weight: 700; cursor: pointer;
     transition: all 0.1s;
   }
   .q-btn:hover { border-color: var(--accent); }
@@ -79,9 +79,7 @@
   .btn.primary:hover { background: var(--accent-hover); }
   .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; font-weight: 500; }
   .btn.ghost:hover, .btn.ghost.armed { color: var(--bad); border-color: var(--bad); }
-  .btn.danger-sm { color: var(--bad); border-color: transparent; padding: 4px 8px; font-size: 0.85rem; }
-  .btn.danger-sm:hover { background: var(--bad-bg); }
-
+  
   .error { color: var(--bad); font-size: .9rem; margin: 10px 0 0; min-height: 1.4em; }
   .muted { color: var(--muted); margin: 8px 0 0; }
 
@@ -95,7 +93,7 @@
   .icon-btn:hover { color: var(--bad); background: var(--bad-bg); }
 
   /* Таблетки */
-  .pill { display: inline-block; min-width: 2.2em; text-align: center; padding: 2px 10px; border-radius: 8px; font-weight: 700; }
+  .pill { display: inline-block; min-width: 2.2; padding: 2px 10px; border-radius: 8px; font-weight: 700; }
   .pill.big { font-size: 1.25rem; padding: 2px 14px; }
   .pill.good { color: var(--good); background: var(--good-bg); }
   .pill.warn { color: var(--warn); background: var(--warn-bg); }
@@ -107,14 +105,14 @@
   .note { color: var(--muted); font-size: .8rem; text-align: center; }
 
   /* Прогноз */
-  .forecast { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-  .forecast-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: .95rem; }
+  .forecast { displaymain: flex; flex-direction: column; gap: 8px class=";wrap margin-top: 4px; }
+ ">
+ .forecast-row { display : flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: .95rem; }
   .forecast-row strong { font-size: 1.1rem; }
 </style>
 </head>
 <body>
-<main class="wrap">
-  <h1>MarkIt <span style="font-size:1rem; font-weight:400; color:var(--muted);">Калькулятор оценок</span></h1>
+< <h1>MarkIt <span style="font-size:1rem; font-weight:400; color:var(--muted);">Калькулятор оценок</span></h1>
 
   <!-- Панель предметов -->
   <div class="subjects-bar" id="subjectsBar">
@@ -125,15 +123,15 @@
   <section class="card">
     <form id="form" novalidate autocomplete="off">
       <div class="full">
-        <label>Оценка (нажми на цифру)</label>
+        <label>Выберите оценку (нажми на цифру)</label>
         <div class="quick-grades">
           <button type="button" class="q-btn" data-g="5">5</button>
           <button type="button" class="q-btn" data-g="4">4</button>
           <button type="button" class="q-btn" data-g="3">3</button>
           <button type="button" class="q-btn" data-g="2">2</button>
         </div>
-        <!-- Поле для ручного ввода, если понадобится -->
-        <input id="grade" type="text" inputmode="numeric" maxlength="3" placeholder="Или впиши вручную..." style="margin-top:8px;">
+        <!-- Скрытое поле, куда записывается выбранная оценка -->
+        <input id="grade" type="hidden" value="">
       </div>
       <div class="full">
         <label for="subject">Название работы / комментарий (необязательно)</label>
@@ -219,7 +217,6 @@
   const STORAGE_KEY = 'markit_data_v2';
 
   // ---------- Данные (сохранение в localStorage) ----------
-  // Структура: { currentSubject: "Математика", subjects: { "Математика": [ ...entries ], ... }, nextId: 1 }
   let state = {
     currentSubject: '',
     subjects: {},
@@ -238,12 +235,10 @@
     console.warn('Не удалось загрузить данные', e);
   }
 
-  // Если предметов вообще нет, создадим дефолтный
   if (Object.keys(state.subjects).length === 0) {
     state.subjects['Мои оценки'] = [];
     state.currentSubject = 'Мои оценки';
   }
-  // Если текущий предмет не существует (например, удалили), берем первый попавшийся
   if (!state.subjects[state.currentSubject]) {
     state.currentSubject = Object.keys(state.subjects)[0];
   }
@@ -312,7 +307,6 @@
       btn.className = 'subject-btn' + (subj === state.currentSubject ? ' active' : '');
       btn.textContent = subj;
       
-      // Обработка переключения
       btn.onclick = () => {
         if (state.currentSubject !== subj) {
           state.currentSubject = subj;
@@ -321,7 +315,6 @@
         }
       };
       
-      // Удаление предмета (по двойному клику или долгому нажатию на мобильных)
       btn.ondblclick = (e) => {
         e.preventDefault();
         if (Object.keys(state.subjects).length <= 1) {
@@ -342,7 +335,6 @@
       subjectsBar.appendChild(btn);
     });
 
-    // Кнопка добавления предмета
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'subject-btn add';
@@ -435,9 +427,15 @@
 
   // Быстрый ввод оценки
   document.querySelectorAll('.q-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); // Чтобы форма не отправлялась
       gradeEl.value = btn.dataset.g;
-      gradeEl.focus();
+      
+      // Визуальный отклик: снимаем выделение со всех кнопок и выделяем нажатую
+      document.querySelectorAll('.q-btn').forEach(b => b.style.borderColor = 'var(--line)');
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.background = 'var(--bg)'; // На случай если ховер остался
+      
       errorEl.textContent = '';
     });
   });
@@ -448,11 +446,10 @@
 
     const workName = subjectEl.value.trim() || 'Без названия';
 
-    const gradeText = normalize(gradeEl.value);
-    if (!NUM_RE.test(gradeText) || ![2, 3, 4, 5].includes(Number(gradeText))) {
-      return showError('Выберите оценку (2, 3, 4 или 5) или впишите её вручную.', gradeEl);
+    if (!gradeEl.value) {
+      return showError('Сначала выбери оценку (нажми на цифру 2, 3, 4 или 5).');
     }
-    const grade = Number(gradeText);
+    const grade = Number(gradeEl.value);
 
     let weight = 1;
     const weightText = normalize(weightEl.value);
@@ -472,11 +469,20 @@
     });
     
     saveData();
+    
+    // Очистка формы
     errorEl.textContent = '';
-    gradeEl.value = '';
-    weightEl.value = '';
     subjectEl.value = '';
-    renderData(); // Перерисовываем только данные, вкладки не трогаем
+    weightEl.value = '';
+    gradeEl.value = '';
+    
+    // Сброс визуального выделения кнопок
+    document.querySelectorAll('.q-btn').forEach(b => {
+      b.style.borderColor = 'var(--line)';
+      b.style.background = 'var(--bg)';
+    });
+
+    renderData();
   });
 
   // Удаление оценки
@@ -511,7 +517,7 @@
     }
   });
 
-  [subjectEl, gradeEl, weightEl].forEach(el =>
+  [subjectEl, weightEl].forEach(el =>
     el.addEventListener('input', () => { errorEl.textContent = ''; })
   );
 
