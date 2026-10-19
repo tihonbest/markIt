@@ -2,7 +2,7 @@
 
 **MarkIt** — это простой и умный веб-калькулятор, который поможет рассчитать средний балл и спрогнозировать итоговую оценку по предметам. Больше не нужно считать в уме или на обычном калькуляторе!
 
-👉 **Открыть сайт:** [https://tihonbest.github.io/markit/](https://tihonbest.github.io/markit/)
+👉 **Открыть сайт:** [https://tihonbest.github.io/markit/](https://tihonbest.github.io/markIt/)
 
 ## ✨ Фишки проекта
 
